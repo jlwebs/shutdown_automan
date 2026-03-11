@@ -728,12 +728,13 @@ func (g *GUI) checkProcessStatuses(model *ProcessModel) {
 	for _, row := range model.items {
 		// Case insensitive status lookup
 		lowerName := strings.ToLower(row.Name)
-		stat, exists := statusMap[lowerName]
+		procInfo, exists := statusMap[lowerName]
 
 		newStatus := ""
 		if !exists {
 			newStatus = t("Not Started")
 		} else {
+			stat := procInfo.Status
 			if strings.Contains(stat, "Not Responding") { // Localized tasklist output might differ?
 				// tasklist status: "Running", "Suspended", "Not Responding", "Unknown"
 				// "Unknown" usually means running.
