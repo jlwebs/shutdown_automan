@@ -225,11 +225,30 @@ func (g *GUI) startService() {
 	g.serviceCtx = ctx
 	g.serviceCancel = cancel
 
+	errChan := make(chan error, 1)
 	go func() {
 		if err := service.StartHTTPServer(ctx, g.cfg); err != nil {
 			log.Printf("HTTP Server error: %v", err)
+			errChan <- err
 		}
 	}()
+
+	// Wait a short time to see if bind fails
+	select {
+	case err := <-errChan:
+		cancel()
+		g.serviceCtx = nil
+		g.serviceCancel = nil
+		
+		msg := fmt.Sprintf(t("PortOccupiedMsg"), g.cfg.Get().Port) + "\n\nDetails: " + err.Error()
+		walk.MsgBox(g.mainWindow, t("Error"), msg, walk.MsgBoxOK|walk.MsgBoxIconWarning)
+		
+		// Proactively open settings so they can fix it
+		g.openSettings()
+		return
+	case <-time.After(200 * time.Millisecond):
+		// Started successfully (probably)
+	}
 
 	go service.StartMonitor(ctx, g.cfg)
 

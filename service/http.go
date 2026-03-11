@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 )
 
 // StartHTTPServer starts the HTTP server. It listens on the configured port.
-// It uses context for shutdown.
+// It returns an error if the initial bind fails, allowing the UI to react.
 func StartHTTPServer(ctx context.Context, cfg *config.Config) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/restart", func(w http.ResponseWriter, r *http.Request) {
@@ -119,23 +120,24 @@ func StartHTTPServer(ctx context.Context, cfg *config.Config) error {
 		json.NewEncoder(w).Encode(response)
 	})
 
+	port := cfg.Get().Port
+	if port == "" {
+		port = "8080"
+	}
+
+	addr := ":" + port
+	ln, err := net.Listen("tcp", addr)
+	if err != nil {
+		return err
+	}
+
 	server := &http.Server{
 		Handler: mux,
 	}
 
 	go func() {
-		// Watch for config changes or context cancellation to manage server restarts if needed
-		// For now, simple server starting on configured port.
-		// Handling dynamic port change is complex (requires server restart).
-		// We'll stick to initial port for now, or implement a restart logic in main loop if config changes.
-
-		port := cfg.Get().Port
-		if port == "" {
-			port = "8080"
-		}
-		server.Addr = ":" + port
-
-		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Printf("HTTP Server listening on %s", addr)
+		if err := server.Serve(ln); err != nil && err != http.ErrServerClosed {
 			log.Printf("HTTP Server error: %v", err)
 		}
 	}()
@@ -143,3 +145,4 @@ func StartHTTPServer(ctx context.Context, cfg *config.Config) error {
 	<-ctx.Done()
 	return server.Shutdown(context.Background())
 }
+

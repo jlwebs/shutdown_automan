@@ -24,7 +24,9 @@ func main() {
 		defer f.Close()
 		log.SetOutput(f)
 	}
-	log.Println("--- App Starting (Version: 08R2-Fix) ---")
+	log.Println("--- App Starting (Version: 08R2-Final-Fix) ---")
+	pwd, _ := os.Getwd()
+	log.Printf("Working Directory: %s", pwd)
 	log.Printf("Executable Path: %s", exePath)
 
 	// Panic Recovery
@@ -36,10 +38,6 @@ func main() {
 			_ = os.WriteFile(filepath.Join(filepath.Dir(exePath), "CRASH_REPORT.txt"), []byte(panicMsg), 0666)
 		}
 	}()
-
-	log.Println("--- App Starting (Version: ARM64-Fix-2) ---")
-	pwd, _ := os.Getwd()
-	log.Printf("Working Directory: %s", pwd)
 
 	// 2. Load Configuration
 	cfg, err := config.LoadConfig()

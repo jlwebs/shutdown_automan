@@ -48,6 +48,7 @@ var translations = map[string]map[string]string{
 		"Not Responding":               "Not Responding",
 		"Checking...":                  "Checking...",
 		"Process Status":               "Status",
+		"PortOccupiedMsg":              "Port %s is already in use. Service failed to start. Please change the port in Settings.",
 	},
 	"zh": {
 		"Start Service":          "启动服务",
@@ -89,6 +90,7 @@ var translations = map[string]map[string]string{
 		"Process Name:":                "进程名:",
 		"OK":                           "确定",
 		"Process name cannot be empty": "进程名不能为空",
+		"PortOccupiedMsg":              "端口 %s 已被占用，服务启动失败。请在设置中修改端口。",
 	},
 }
 
