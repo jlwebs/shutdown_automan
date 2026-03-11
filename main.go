@@ -24,7 +24,7 @@ func main() {
 		defer f.Close()
 		log.SetOutput(f)
 	}
-	log.Println("--- App Starting (Version: 08R2-Final-Fix) ---")
+	log.Println("--- App Starting (Version: 2008R2-Compatible) ---")
 	pwd, _ := os.Getwd()
 	log.Printf("Working Directory: %s", pwd)
 	log.Printf("Executable Path: %s", exePath)
@@ -34,7 +34,6 @@ func main() {
 		if r := recover(); r != nil {
 			panicMsg := fmt.Sprintf("CRITICAL ERROR: %v\n\nStack Trace:\n%s", r, debug.Stack())
 			log.Println(panicMsg)
-			// On 08R2, if GUI fails, we might not see anything. Try to log to a special error file as well.
 			_ = os.WriteFile(filepath.Join(filepath.Dir(exePath), "CRASH_REPORT.txt"), []byte(panicMsg), 0666)
 		}
 	}()
@@ -43,7 +42,6 @@ func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Printf("CRITICAL: Failed to load config: %v", err)
-		// Don't exit yet, config might fail but GUI might survive with defaults
 	} else {
 		log.Println("Config loaded successfully")
 	}

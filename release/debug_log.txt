@@ -1,0 +1,5 @@
+2026/03/11 13:20:38 --- DEBUG STARTUP ---
+2026/03/11 13:20:38 GOOS: windows, GOARCH: amd64
+2026/03/11 13:20:38 PWD: D:\GitHub\shutdown_automan\release
+2026/03/11 13:20:38 Starting GUI...
+2026/03/11 13:20:38 HTTP Server listening on :8080
