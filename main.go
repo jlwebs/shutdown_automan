@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -11,26 +12,28 @@ import (
 )
 
 func main() {
-	// Setup logging to file with absolute path to ensure we find it
-	exePath, _ := os.Executable()
-	logPath := "log.txt"
-	if exePath != "" {
-		logPath = filepath.Join(filepath.Dir(exePath), "log.txt")
+	// 1. Setup logging to file with absolute path
+	exePath, err := os.Executable()
+	if err != nil {
+		exePath = "."
 	}
+	logPath := filepath.Join(filepath.Dir(exePath), "log.txt")
 
 	f, err := os.OpenFile(logPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err == nil {
 		defer f.Close()
 		log.SetOutput(f)
-	} else {
-		// If we can't open log file, try to print to stdout (though invisible in GUI app)
-		log.Printf("Failed to open log file: %v", err)
 	}
+	log.Println("--- App Starting (Version: 08R2-Fix) ---")
+	log.Printf("Executable Path: %s", exePath)
 
 	// Panic Recovery
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("PANIC RECOVERED: %v\nStack: %s", r, debug.Stack())
+			panicMsg := fmt.Sprintf("CRITICAL ERROR: %v\n\nStack Trace:\n%s", r, debug.Stack())
+			log.Println(panicMsg)
+			// On 08R2, if GUI fails, we might not see anything. Try to log to a special error file as well.
+			_ = os.WriteFile(filepath.Join(filepath.Dir(exePath), "CRASH_REPORT.txt"), []byte(panicMsg), 0666)
 		}
 	}()
 
@@ -38,10 +41,11 @@ func main() {
 	pwd, _ := os.Getwd()
 	log.Printf("Working Directory: %s", pwd)
 
-	// 1. Load Configuration
+	// 2. Load Configuration
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Printf("Failed to load config: %v", err)
+		log.Printf("CRITICAL: Failed to load config: %v", err)
+		// Don't exit yet, config might fail but GUI might survive with defaults
 	} else {
 		log.Println("Config loaded successfully")
 	}

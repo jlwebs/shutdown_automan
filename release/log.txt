@@ -27,3 +27,8 @@
 2026/03/11 11:53:20 Config loaded successfully
 2026/03/11 11:53:20 Starting GUI Run Loop...
 2026/03/11 11:53:20 HTTP Server error: listen tcp :8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+2026/03/11 13:07:12 --- App Starting (Version: ARM64-Fix-2) ---
+2026/03/11 13:07:12 Working Directory: D:\GitHub\shutdown_automan\release
+2026/03/11 13:07:12 Config loaded successfully
+2026/03/11 13:07:12 Starting GUI Run Loop...
+2026/03/11 13:07:12 HTTP Server error: listen tcp :8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
