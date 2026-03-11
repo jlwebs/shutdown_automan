@@ -1,0 +1,6 @@
+{
+  "port": "8080",
+  "process_list": [],
+  "monitor_enabled": false,
+  "monitor_interval": 60
+}
