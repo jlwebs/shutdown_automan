@@ -70,17 +70,25 @@
 - **Method**: `GET`, `POST`
 - **Query 参数**:
   - `key` (可选): 用于鉴权的密钥（视服务端配置而定）。
+  - `regret` (可选): 传入 `true` 则可以撤销一次当前正在处于 30 秒等待期内的重启操作。
 
 ### 成功响应示例 (200 OK)
 
 响应 Content-Type 为 `text/plain`。
 
+**发起重启时（不带 regret）**
 ```text
-Restart initiated
+Restart initiated. Waiting 30 seconds...
 ```
-*(注意：该接口触发的是后端的异步操作，实际的进程结束和重启动作将在后端队列中执行)*
+*(注意：该接口触发的是后端的异步操作，实际的进程结束和重启动作将在后端队列中等待 30 秒后执行。在 30 秒内可以通过传入 regret=true 参数来取消重启)*
+
+**撤销重启时（传入 regret=true）**
+```text
+Restart sequence cancelled
+```
 
 ### 错误响应
 
+- **400 Bad Request**: （在撤销时不满足条件，比如没有正在进行的重启序列或者已经过了 30 秒倒计时）。返回示例："Failed to cancel restart: no restart sequence in progress"
 - **403 Forbidden**: 提供或缺失的 `key` 不正确。
 - **405 Method Not Allowed**: 使用了除 `GET` 或 `POST` 以外的请求方法。

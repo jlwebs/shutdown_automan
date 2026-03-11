@@ -37,6 +37,16 @@ func StartHTTPServer(ctx context.Context, cfg *config.Config) error {
 			}
 		}
 
+		if r.URL.Query().Get("regret") == "true" {
+			if err := CancelRestart(); err != nil {
+				http.Error(w, "Failed to cancel restart: "+err.Error(), http.StatusBadRequest)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprintf(w, "Restart sequence cancelled")
+			return
+		}
+
 		go func() {
 			if err := TriggerRestart(cfg); err != nil {
 				log.Printf("Restart failed: %v", err)
@@ -44,7 +54,7 @@ func StartHTTPServer(ctx context.Context, cfg *config.Config) error {
 		}()
 
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "Restart initiated")
+		fmt.Fprintf(w, "Restart initiated. Waiting 30 seconds...")
 	})
 
 	mux.HandleFunc("/process_status", func(w http.ResponseWriter, r *http.Request) {

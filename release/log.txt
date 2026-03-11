@@ -2,3 +2,28 @@
 2026/03/11 11:11:24 Working Directory: D:\GitHub\shutdown_automan\release
 2026/03/11 11:11:24 Config loaded successfully
 2026/03/11 11:11:24 Starting GUI Run Loop...
+2026/03/11 11:37:29 --- App Exited (Normally) ---
+2026/03/11 11:37:31 --- App Starting (Version: ARM64-Fix-2) ---
+2026/03/11 11:37:31 Working Directory: D:\GitHub\shutdown_automan\release
+2026/03/11 11:37:31 Config loaded successfully
+2026/03/11 11:37:31 Starting GUI Run Loop...
+2026/03/11 11:39:34 --- App Exited (Normally) ---
+2026/03/11 11:42:14 --- App Starting (Version: ARM64-Fix-2) ---
+2026/03/11 11:42:14 Working Directory: D:\GitHub\shutdown_automan\release
+2026/03/11 11:42:14 Config loaded successfully
+2026/03/11 11:42:14 Starting GUI Run Loop...
+2026/03/11 11:42:25 --- App Exited (Normally) ---
+2026/03/11 11:43:34 --- App Starting (Version: ARM64-Fix-2) ---
+2026/03/11 11:43:34 Working Directory: D:\GitHub\shutdown_automan
+2026/03/11 11:43:34 Config loaded successfully
+2026/03/11 11:43:34 Starting GUI Run Loop...
+2026/03/11 11:44:04 --- App Exited (Normally) ---
+2026/03/11 11:44:06 --- App Starting (Version: ARM64-Fix-2) ---
+2026/03/11 11:44:06 Working Directory: D:\GitHub\shutdown_automan\release
+2026/03/11 11:44:06 Config loaded successfully
+2026/03/11 11:44:06 Starting GUI Run Loop...
+2026/03/11 11:53:20 --- App Starting (Version: ARM64-Fix-2) ---
+2026/03/11 11:53:20 Working Directory: D:\GitHub\shutdown_automan
+2026/03/11 11:53:20 Config loaded successfully
+2026/03/11 11:53:20 Starting GUI Run Loop...
+2026/03/11 11:53:20 HTTP Server error: listen tcp :8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.

@@ -1,0 +1,4 @@
+2026/03/11 11:42:37 --- App Starting (Version: ARM64-Fix-2) ---
+2026/03/11 11:42:37 Working Directory: D:\GitHub\shutdown_automan
+2026/03/11 11:42:37 Config loaded successfully
+2026/03/11 11:42:37 Starting GUI Run Loop...

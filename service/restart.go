@@ -13,6 +13,7 @@ import (
 var (
 	restartMutex sync.Mutex
 	isRestarting bool
+	cancelChan   chan struct{}
 )
 
 // TriggerRestart initiates the restart sequence.
@@ -20,19 +21,34 @@ var (
 func TriggerRestart(cfg *config.Config) error {
 	restartMutex.Lock()
 	if isRestarting {
-		restartMutex.Unlock()
+		restartMutex.Lock()
 		return fmt.Errorf("restart sequence already in progress")
 	}
 	isRestarting = true
+	c := make(chan struct{})
+	cancelChan = c
 	restartMutex.Unlock()
 
 	defer func() {
 		restartMutex.Lock()
 		isRestarting = false
+		cancelChan = nil
 		restartMutex.Unlock()
 	}()
 
-	log.Println("Starting restart sequence...")
+	log.Println("Restart sequence initiated. Waiting 30 seconds before proceeding...")
+
+	// Wait 30 seconds, allowing for cancellation
+	select {
+	case <-time.After(30 * time.Second):
+		log.Println("30 seconds elapsed. Proceeding with restart sequence...")
+		restartMutex.Lock()
+		cancelChan = nil // Prevents further cancellation attempts during process kill loop
+		restartMutex.Unlock()
+	case <-c: // Cancelled
+		log.Println("Restart sequence cancelled by user.")
+		return nil
+	}
 
 	// 1. Terminate processes
 	for _, proc := range cfg.Get().ProcessList {
@@ -52,6 +68,24 @@ func TriggerRestart(cfg *config.Config) error {
 	// 3. System Restart
 	log.Println("All processes handled. Initiating system restart...")
 	return systemRestart()
+}
+
+// CancelRestart cancels an ongoing restart sequence that is in the 30-second waiting period.
+func CancelRestart() error {
+	restartMutex.Lock()
+	defer restartMutex.Unlock()
+
+	if !isRestarting {
+		return fmt.Errorf("no restart sequence in progress")
+	}
+
+	if cancelChan != nil {
+		close(cancelChan)
+		cancelChan = nil
+		return nil
+	}
+
+	return fmt.Errorf("restart sequence cannot be cancelled at this stage")
 }
 
 func killProcess(name string) error {
