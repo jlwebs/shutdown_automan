@@ -3,8 +3,13 @@
 
 package service
 
+type ProcessStateInfo struct {
+	Status string // "Running", "Not Responding", etc.
+	IsHung bool
+}
+
 // GetRunningProcesses is a stub for non-Windows platforms.
 // It returns an empty map.
-func GetRunningProcesses() (map[string]string, error) {
-	return make(map[string]string), nil
+func GetRunningProcesses() (map[string]ProcessStateInfo, error) {
+	return make(map[string]ProcessStateInfo), nil
 }

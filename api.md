@@ -21,29 +21,39 @@
 
 ### 成功响应示例 (200 OK)
 
-响应 Content-Type 为 `application/json`。
+响应 Content-Type 为 `application/json`。返回的结构将进程列表包裹在对象内，并包含系统近十分钟的平均网速估计。
 
 ```json
-[
-  {
-    "name": "explorer.exe",
-    "status": "Running",
-    "delay": 10
-  },
-  {
-    "name": "notepad.exe",
-    "status": "Not Started",
-    "delay": 5
-  }
-]
+{
+  "processes": [
+    {
+      "name": "explorer.exe",
+      "status": "Running",
+      "delay": 10,
+      "is_not_responding": false
+    },
+    {
+      "name": "notepad.exe",
+      "status": "Not Started",
+      "delay": 5,
+      "is_not_responding": false
+    }
+  ],
+  "network_speed_in_bps": 10240.5,
+  "network_speed_out_bps": 2048.0
+}
 ```
 
 #### 字段说明
 | 字段名称 | 类型 | 描述 |
 | ------ | ------ | ------ |
+| `processes` | array | 被监控进程的数组 |
 | `name` | string | 进程名称（在配置列表中定义的名称） |
-| `status` | string | 当前状态。通常为 `"Running"` (运行中) 或 `"Not Started"` (未运行/未知)。 |
+| `status` | string | 当前状态。通常为 `"Running"` (运行中), `"Not Responding"` (无响应) 或 `"Not Started"` (未运行/未知)。 |
 | `delay` | int | 后端配置的该进程相关延迟时间 |
+| `is_not_responding` | bool | 标记进程是否处于“无响应”状态 |
+| `network_speed_in_bps` | float | 系统级下行网络速度（字节/秒 Bps），反映近10分钟内的平均值，用于作为是否正在下载更新/活跃玩家交互的参考指标。 |
+| `network_speed_out_bps` | float | 系统级上行网络速度（字节/秒 Bps）。 |
 
 ### 错误响应
 

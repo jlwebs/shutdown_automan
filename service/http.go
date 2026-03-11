@@ -66,29 +66,47 @@ func StartHTTPServer(ctx context.Context, cfg *config.Config) error {
 		}
 
 		type ProcessStatus struct {
-			Name   string `json:"name"`
-			Status string `json:"status"`
-			Delay  int    `json:"delay"`
+			Name            string `json:"name"`
+			Status          string `json:"status"`
+			Delay           int    `json:"delay"`
+			IsNotResponding bool   `json:"is_not_responding"`
+		}
+
+		type SystemStatus struct {
+			Processes          []ProcessStatus `json:"processes"`
+			NetworkSpeedInBps  float64         `json:"network_speed_in_bps"`
+			NetworkSpeedOutBps float64         `json:"network_speed_out_bps"`
 		}
 
 		var statuses []ProcessStatus
 		for _, p := range currentCfg.ProcessList {
-			stat, exists := runningMap[strings.ToLower(p.Name)]
+			procInfo, exists := runningMap[strings.ToLower(p.Name)]
+			stat := procInfo.Status
+			isHung := procInfo.IsHung
 			// Normalize/translate "Unknown" status
 			if !exists {
 				stat = "Not Started"
+				isHung = false
 			} else if strings.Contains(stat, "Unknown") {
 				stat = "Running"
 			}
 			statuses = append(statuses, ProcessStatus{
-				Name:   p.Name,
-				Status: stat,
-				Delay:  p.Delay,
+				Name:            p.Name,
+				Status:          stat,
+				Delay:           p.Delay,
+				IsNotResponding: isHung,
 			})
 		}
 
+		inSpeed, outSpeed := GetNetworkSpeed10Min()
+		response := SystemStatus{
+			Processes:          statuses,
+			NetworkSpeedInBps:  inSpeed,
+			NetworkSpeedOutBps: outSpeed,
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(statuses)
+		json.NewEncoder(w).Encode(response)
 	})
 
 	server := &http.Server{

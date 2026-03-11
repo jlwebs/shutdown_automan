@@ -17,14 +17,19 @@ var (
 	procGetWindowThreadProcessId = user32.NewProc("GetWindowThreadProcessId")
 )
 
-type enumCtx struct {
-	pidMap    map[uint32]string
-	statusMap map[string]string
+type ProcessStateInfo struct {
+	Status string
+	IsHung bool
 }
 
-// GetRunningProcesses returns a map of process name (lowercase) to its status.
+type enumCtx struct {
+	pidMap    map[uint32]string
+	statusMap map[string]*ProcessStateInfo
+}
+
+// GetRunningProcesses returns a map of process name (lowercase) to its status info.
 // It detects "Not Responding" status by enumerating windows and checking IsHungAppWindow.
-func GetRunningProcesses() (map[string]string, error) {
+func GetRunningProcesses() (map[string]ProcessStateInfo, error) {
 	// 1. Snapshot all running processes
 	snapshot, err := syscall.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
 	if err != nil {
@@ -36,13 +41,13 @@ func GetRunningProcesses() (map[string]string, error) {
 	pe32.Size = uint32(unsafe.Sizeof(pe32))
 
 	pidMap := make(map[uint32]string)
-	statusMap := make(map[string]string)
+	statusMap := make(map[string]*ProcessStateInfo)
 
 	if err := syscall.Process32First(snapshot, &pe32); err == nil {
 		for {
 			name := strings.ToLower(syscall.UTF16ToString(pe32.ExeFile[:]))
 			pidMap[pe32.ProcessID] = name
-			statusMap[name] = "Running" // Default assumption
+			statusMap[name] = &ProcessStateInfo{Status: "Running", IsHung: false} // Default assumption
 			if err := syscall.Process32Next(snapshot, &pe32); err != nil {
 				break
 			}
@@ -66,7 +71,8 @@ func GetRunningProcesses() (map[string]string, error) {
 			// Check if hung
 			ret, _, _ := procIsHungAppWindow.Call(uintptr(hwnd))
 			if ret != 0 {
-				myCtx.statusMap[name] = "Not Responding" // Localized later in GUI
+				myCtx.statusMap[name].Status = "Not Responding" // Localized later in GUI
+				myCtx.statusMap[name].IsHung = true
 			}
 		}
 		return 1 // Continue enumeration
@@ -74,5 +80,9 @@ func GetRunningProcesses() (map[string]string, error) {
 
 	procEnumWindows.Call(cb, uintptr(unsafe.Pointer(ctx)))
 
-	return statusMap, nil
+	resultMap := make(map[string]ProcessStateInfo)
+	for k, v := range statusMap {
+		resultMap[k] = *v
+	}
+	return resultMap, nil
 }
